@@ -1,2 +1,2 @@
-AUTHOR = 'GrenManSK'
-VERSION = '1.0.3'
+AUTHOR = "GrenManSK"
+VERSION = "1.0.3"
