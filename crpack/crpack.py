@@ -35,15 +35,14 @@ def main():
         desc = input("Description of package > ")
     else:
         desc = args.desc
-    if args.new_folder in [None, UNSPECIFIED]:
+    if args.new_folder in [None]:
         nf = input("Folder name for package to be put > ")
         if nf in ["", "./"]:
             nfpath = ""
         else:
             nfpath = nf + "/"
     else:
-        nf = args.new_folder
-        nfpath = nf + "/"
+        nfpath = ".\\"
 
     if args.verbose:
         logger.stay(f"Creating folder with name {vstup}")
