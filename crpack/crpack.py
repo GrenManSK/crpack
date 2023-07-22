@@ -75,7 +75,7 @@ setup(
     install_requires=[],
     packages=find_packages(exclude=('tests*', 'testing*')),
     include_package_data=True,
-    package_data={"": glob.glob(__file__.rsplit(\"\\\", 1)[0] + \")},
+    package_data={"": glob.glob(__file__.rsplit(\"\\\", 1)[0] + \"\")},
     entry_points={
         'console_scripts': [
             '"""
