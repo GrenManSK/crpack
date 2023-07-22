@@ -67,7 +67,7 @@ import glob
 from {vstup} import VERSION, AUTHOR
 
 setup(
-    name ='{vstup}' ,
+    name ='{vstup}',
     version=VERSION,
     description='"""
             + desc
@@ -86,8 +86,8 @@ setup(
             + """."""
             + vstup
             + """:main',
-],
-}
+        ],
+    }
 )
 """
         )
