@@ -111,12 +111,30 @@ def ErrorWrapper(func):
     def wrapper(*args, **kwargs):
         try:
             return_code = func(*args, **kwargs)
-            if return_code == 0 and isinstance(return_code, int):
-                pass
+            if return_code == 0:
+                sys.exit(0)
             elif return_code is None:
                 print("WARNING: " + func.__name__ + " should return 0")
             elif isinstance(return_code, str):
                 print("WARNING: " + func.__name__ + " should not return a string but 0")
+            elif isinstance(return_code, bool):
+                print("WARNING: " + func.__name__ + " should not return a bool but 0")
+            elif isinstance(return_code, float):
+                print("WARNING: " + func.__name__ + " should not return a float but 0")
+            elif isinstance(return_code, list):
+                print("WARNING: " + func.__name__ + " should not return a list but 0")
+            elif isinstance(return_code, tuple):
+                print("WARNING: " + func.__name__ + " should not return a tuple but 0")
+            elif isinstance(return_code, set):
+                print("WARNING: " + func.__name__ + " should not return a set but 0")
+            elif isinstance(return_code, dict):
+                print("WARNING: " + func.__name__ + " should not return a dict but 0")
+            elif isinstance(return_code, bytes):
+                print("WARNING: " + func.__name__ + " should not return a bytes but 0")
+            elif isinstance(return_code, bytearray):
+                print(
+                    "WARNING: " + func.__name__ + " should not return a bytearray but 0"
+                )
             elif return_code != 0 and isinstance(return_code, int):
                 print(
                     f"ERROR: {func.__name__} failed with return code {return_code}\\n\\nTry adding '--explain {return_code}' to see the error code"
@@ -138,20 +156,21 @@ def ErrorWrapper(func):
 @ErrorWrapper
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--explain", type=int, help="explain error code", default=None)
+    parser.add_argument(
+        "--explain",
+        type=int,
+        help="explain error code",
+        choices=explain.keys(),
+        metavar="ERROR_CODE",
+        default=None,
+    )
     args = parser.parse_args()
 
     if args.explain is not None:
-        try:
-            explain[args.explain]
-        except KeyError:
-            print(
-                f"EXPLAIN: Error code {args.explain} not found, make sure you have spelled the correct error"
-            )
-            return 0
         print(f"EXPLAIN: Explaining error code: {args.explain}")
         print(" EXPLAIN:  " + explain[args.explain])
         return 0
+
     return 0
 
 
