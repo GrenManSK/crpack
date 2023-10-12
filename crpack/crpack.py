@@ -101,8 +101,35 @@ AUTHOR = 'GrenManSK'"""
         logger.stay(f"Writing {vstup}.py")
     with open(f"{nfpath}{vstup}/{vstup}.py", "w") as file:
         file.write(
-            """def main():
-    pass
+            """import argparse
+import os
+
+explain = {}
+
+
+def ErrorWrapper(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return_code = func(*args, **kwargs)
+            if return_code != 0:
+                print(f"ERROR: {func.__name__} failed with return code {return_code}")
+        except Exception as e:
+            print(e)
+            return 1
+
+    return wrapper
+
+
+@ErrorWrapper
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--explain", type=int, help="explain error code", default=None)
+    args = parser.parse_args()
+
+    if args.explain is not None:
+        print(f"Explaining error code: {args.explain}")
+        print("  " + explain[args.explain])
+        return 0
 
 
 if __name__ == '__main__':
