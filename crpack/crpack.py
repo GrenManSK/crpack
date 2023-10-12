@@ -35,14 +35,14 @@ def main():
         desc = input("Description of package > ")
     else:
         desc = args.desc
-    if args.new_folder in [None]:
+    if args.new_folder is None:
         nf = input("Folder name for package to be put > ")
         if nf in ["", "./"]:
             nfpath = ""
         else:
             nfpath = nf + "/"
     else:
-        nfpath = ".\\"
+        nfpath = args.new_folder
 
     if args.verbose:
         logger.stay(f"Creating folder with name {vstup}")
@@ -66,27 +66,27 @@ import glob
 from {vstup} import VERSION, AUTHOR
 
 setup(
-    name ='{vstup}',
+    name="{vstup}",
     version=VERSION,
-    description='"""
+    description=\""""
             + desc
-            + """',
+            + """\",
     author=AUTHOR,
-    install_requires=[],
-    packages=find_packages(exclude=('tests*', 'testing*')),
+    install_requires=[\"argparse\"],
+    packages=find_packages(exclude=("tests*", "testing*")),
     include_package_data=True,
     package_data={"": glob.glob(__file__.rsplit(\"\\\\\", 1)[0] + \"\")},
     entry_points={
-        'console_scripts': [
-            '"""
+        "console_scripts": [
+            \""""
             + vstup
             + """ = """
             + vstup
             + """."""
             + vstup
-            + """:main',
+            + """:main\",
         ],
-    }
+    },
 )
 """
         )
@@ -107,6 +107,25 @@ import sys
 explain = {}
 
 
+def check_for_error(errors, func):
+    if len(errors) == 0:
+        return
+    if isinstance(errors, dict):
+        for error, data in errors.items():
+            max_overflow = 15
+            if len(data) > max_overflow:
+                print(
+                    f"ERROR: {func.__name__} failed with return code {error}; {data[:max_overflow]} ..."
+                )
+            else:
+                print(f"ERROR: {func.__name__} failed with return code {error}; {data}")
+        print(f"\\nTry adding '--explain {min(errors)}' to see the error code")
+    else:
+        for error in errors:
+            print(f"ERROR: {func.__name__} failed with return code {error}")
+        print(f"\\nTry adding '--explain {min(errors)}' to see the error code")
+
+
 def ErrorWrapper(func):
     def wrapper(*args, **kwargs):
         try:
@@ -122,19 +141,21 @@ def ErrorWrapper(func):
             elif isinstance(return_code, float):
                 print("WARNING: " + func.__name__ + " should not return a float but 0")
             elif isinstance(return_code, list):
-                print("WARNING: " + func.__name__ + " should not return a list but 0")
+                check_for_error(return_code, func)
             elif isinstance(return_code, tuple):
-                print("WARNING: " + func.__name__ + " should not return a tuple but 0")
+                check_for_error(return_code, func)
             elif isinstance(return_code, set):
-                print("WARNING: " + func.__name__ + " should not return a set but 0")
+                check_for_error(return_code, func)
             elif isinstance(return_code, dict):
-                print("WARNING: " + func.__name__ + " should not return a dict but 0")
+                check_for_error(return_code, func)
             elif isinstance(return_code, bytes):
                 print("WARNING: " + func.__name__ + " should not return a bytes but 0")
             elif isinstance(return_code, bytearray):
                 print(
                     "WARNING: " + func.__name__ + " should not return a bytearray but 0"
                 )
+            elif return_code == 1 and isinstance(return_code, int):
+                print(f"ERROR: {func.__name__} failed with return code {return_code}")
             elif return_code != 0 and isinstance(return_code, int):
                 print(
                     f"ERROR: {func.__name__} failed with return code {return_code}\\n\\nTry adding '--explain {return_code}' to see the error code"
