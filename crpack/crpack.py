@@ -102,7 +102,7 @@ AUTHOR = 'GrenManSK'"""
     with open(f"{nfpath}{vstup}/{vstup}.py", "w") as file:
         file.write(
             """import argparse
-import os
+import sys
 
 explain = {}
 
@@ -111,8 +111,23 @@ def ErrorWrapper(func):
     def wrapper(*args, **kwargs):
         try:
             return_code = func(*args, **kwargs)
-            if return_code != 0:
-                print(f"ERROR: {func.__name__} failed with return code {return_code}")
+            if return_code == 0 and isinstance(return_code, int):
+                pass
+            elif return_code is None:
+                print("WARNING: " + func.__name__ + " should return 0")
+            elif isinstance(return_code, str):
+                print("WARNING: " + func.__name__ + " should not return a string but 0")
+            elif return_code != 0 and isinstance(return_code, int):
+                print(
+                    f"ERROR: {func.__name__} failed with return code {return_code}\\n\\nTry adding '--explain {return_code}' to see the error code"
+                )
+                sys.exit(return_code)
+            else:
+                print(
+                    "WARNING: "
+                    + func.__name__
+                    + f" should return 0, not {type(return_code)}"
+                )
         except Exception as e:
             print(e)
             return 1
@@ -127,13 +142,22 @@ def main():
     args = parser.parse_args()
 
     if args.explain is not None:
-        print(f"Explaining error code: {args.explain}")
-        print("  " + explain[args.explain])
+        try:
+            explain[args.explain]
+        except KeyError:
+            print(
+                f"EXPLAIN: Error code {args.explain} not found, make sure you have spelled the correct error"
+            )
+            return 0
+        print(f"EXPLAIN: Explaining error code: {args.explain}")
+        print(" EXPLAIN:  " + explain[args.explain])
         return 0
+    return 0
 
 
-if __name__ == '__main__':
-    main()"""
+if __name__ == "__main__":
+    main()
+"""
         )
 
 
