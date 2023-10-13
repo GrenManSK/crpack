@@ -113,12 +113,9 @@ def check_for_error(errors, func):
     if isinstance(errors, dict):
         for error, data in errors.items():
             max_overflow = 15
-            if len(data) > max_overflow:
-                print(
-                    f"ERROR: {func.__name__} failed with return code {error}; {data[:max_overflow]} ..."
-                )
-            else:
-                print(f"ERROR: {func.__name__} failed with return code {error}; {data}")
+            print(
+                f"ERROR: {func.__name__} failed with return code {error:<{len(str(max(errors.keys())))}}{('; ' + (data[:max_overflow] + ' ...' if len(data) > max_overflow else data)) if len(data) != 0 else ''}"
+            )
         print(f"\\nTry adding '--explain {min(errors)}' to see the error code")
     else:
         for error in errors:
@@ -140,13 +137,7 @@ def ErrorWrapper(func):
                 print("WARNING: " + func.__name__ + " should not return a bool but 0")
             elif isinstance(return_code, float):
                 print("WARNING: " + func.__name__ + " should not return a float but 0")
-            elif isinstance(return_code, list):
-                check_for_error(return_code, func)
-            elif isinstance(return_code, tuple):
-                check_for_error(return_code, func)
-            elif isinstance(return_code, set):
-                check_for_error(return_code, func)
-            elif isinstance(return_code, dict):
+            elif isinstance(return_code, (list, tuple, set, dict)):
                 check_for_error(return_code, func)
             elif isinstance(return_code, bytes):
                 print("WARNING: " + func.__name__ + " should not return a bytes but 0")
