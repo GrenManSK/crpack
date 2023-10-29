@@ -111,16 +111,19 @@ def check_for_error(errors, func):
     if len(errors) == 0:
         return
     if isinstance(errors, dict):
+        max_overflow = 15
         for error, data in errors.items():
-            max_overflow = 15
-            print(
-                f"ERROR: {func.__name__} failed with return code {error:<{len(str(max(errors.keys())))}}{('; ' + (data[:max_overflow] + ' ...' if len(data) > max_overflow else data)) if len(data) != 0 else ''}"
-            )
-        print(f"\\nTry adding '--explain {min(errors)}' to see the error code")
+            if len(data) > max_overflow:
+                print(
+                    f"ERROR: {func.__name__} failed with return code {error}; {data[:max_overflow]} ..."
+                )
+            else:
+                print(f"ERROR: {func.__name__} failed with return code {error}; {data}")
     else:
         for error in errors:
             print(f"ERROR: {func.__name__} failed with return code {error}")
-        print(f"\\nTry adding '--explain {min(errors)}' to see the error code")
+
+    print(f"\nTry adding '--explain {min(errors)}' to see the error code")
 
 
 def ErrorWrapper(func):
@@ -130,26 +133,24 @@ def ErrorWrapper(func):
             if return_code == 0:
                 sys.exit(0)
             elif return_code is None:
-                print("WARNING: " + func.__name__ + " should return 0")
+                print(f"WARNING: {func.__name__} should return 0")
             elif isinstance(return_code, str):
-                print("WARNING: " + func.__name__ + " should not return a string but 0")
+                print(f"WARNING: {func.__name__} should not return a string but 0")
             elif isinstance(return_code, bool):
-                print("WARNING: " + func.__name__ + " should not return a bool but 0")
+                print(f"WARNING: {func.__name__} should not return a bool but 0")
             elif isinstance(return_code, float):
-                print("WARNING: " + func.__name__ + " should not return a float but 0")
+                print(f"WARNING: {func.__name__} should not return a float but 0")
             elif isinstance(return_code, (list, tuple, set, dict)):
                 check_for_error(return_code, func)
             elif isinstance(return_code, bytes):
-                print("WARNING: " + func.__name__ + " should not return a bytes but 0")
+                print(f"WARNING: {func.__name__} should not return a bytes but 0")
             elif isinstance(return_code, bytearray):
-                print(
-                    "WARNING: " + func.__name__ + " should not return a bytearray but 0"
-                )
+                print(f"WARNING: {func.__name__} should not return a bytearray but 0")
             elif return_code == 1 and isinstance(return_code, int):
                 print(f"ERROR: {func.__name__} failed with return code {return_code}")
             elif return_code != 0 and isinstance(return_code, int):
                 print(
-                    f"ERROR: {func.__name__} failed with return code {return_code}\\n\\nTry adding '--explain {return_code}' to see the error code"
+                    f"ERROR: {func.__name__} failed with return code {return_code}\n\nTry adding '--explain {return_code}' to see the error code"
                 )
                 sys.exit(return_code)
             else:
