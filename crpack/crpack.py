@@ -123,7 +123,7 @@ def check_for_error(errors, func):
         for error in errors:
             print(f"ERROR: {func.__name__} failed with return code {error}")
 
-    print(f"\nTry adding '--explain {min(errors)}' to see the error code")
+    print(f"\\nTry adding '--explain {min(errors)}' to see the error code")
 
 
 def ErrorWrapper(func):
@@ -150,7 +150,7 @@ def ErrorWrapper(func):
                 print(f"ERROR: {func.__name__} failed with return code {return_code}")
             elif return_code != 0 and isinstance(return_code, int):
                 print(
-                    f"ERROR: {func.__name__} failed with return code {return_code}\n\nTry adding '--explain {return_code}' to see the error code"
+                    f"ERROR: {func.__name__} failed with return code {return_code}\\n\\nTry adding '--explain {return_code}' to see the error code"
                 )
                 sys.exit(return_code)
             else:
