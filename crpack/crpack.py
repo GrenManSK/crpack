@@ -3,6 +3,8 @@ import argparse
 import verbose
 from crpack.__init__ import VERSION
 
+print(f"crpack using {VERSION}")
+
 
 logger = verbose.get_logger()
 parser = argparse.ArgumentParser()
@@ -13,34 +15,22 @@ parser.add_argument("-n", "--name", nargs="?", default=None)
 parser.add_argument("-d", "--desc", nargs="?", default=None)
 parser.add_argument("-nf", "--new_folder", nargs="?", default=UNSPECIFIED)
 args = parser.parse_args()
-if args.version != None and args.version != UNSPECIFIED:
+if args.version not in [None, UNSPECIFIED]:
     print("Argument error: --version does not take any input")
     quit(1)
-if args.version == None:
+if args.version is None:
     print(f"Version of crpack is {VERSION}")
     quit(0)
-if args.verbose == None:
-    args.verbose = True
-else:
-    args.verbose = False
+args.verbose = args.verbose is None
 
 
 def main():
+    vstup = input("Name of package > ") if args.name is None else args.name
+    desc = input("Description of package > ") if args.desc is None else args.desc
     nf = ""
-    if args.name == None:
-        vstup = input("Name of package > ")
-    else:
-        vstup = args.name
-    if args.desc == None:
-        desc = input("Description of package > ")
-    else:
-        desc = args.desc
     if args.new_folder is None:
         nf = input("Folder name for package to be put > ")
-        if nf in ["", "./"]:
-            nfpath = ""
-        else:
-            nfpath = nf + "/"
+        nfpath = "" if nf in ["", "./"] else f"{nf}/"
     else:
         nfpath = args.new_folder
 
@@ -57,7 +47,7 @@ def main():
             logger.stay(f"Creating folder with name {vstup}")
         os.mkdir(f"{vstup}")
     if args.verbose:
-        logger.stay(f"Writing setup.py")
+        logger.stay("Writing setup.py")
     with open(f"{nfpath}setup.py", "w") as file:
         file.write(
             f"""from setuptools import setup
@@ -68,8 +58,7 @@ from {vstup} import VERSION, AUTHOR
 setup(
     name="{vstup}",
     version=VERSION,
-    description=\""""
-            + desc
+    description=\"{desc}"""
             + """\",
     author=AUTHOR,
     install_requires=[\"argparse\"],
@@ -91,7 +80,7 @@ setup(
 """
         )
     if args.verbose:
-        logger.stay(f"Writing __init__.py")
+        logger.stay("Writing __init__.py")
     with open(f"{nfpath}{vstup}/__init__.py", "w") as file:
         file.write(
             """VERSION = '1.0.0'
@@ -103,6 +92,9 @@ AUTHOR = 'GrenManSK'"""
         file.write(
             """import argparse
 import sys
+from __init__ import VERSION
+
+print(f\"""" + vstup + """ using {VERSION}")
 
 explain = {}
 
@@ -181,7 +173,7 @@ def main():
 
     if args.explain is not None:
         print(f"EXPLAIN: Explaining error code: {args.explain}")
-        print(" EXPLAIN:  " + explain[args.explain])
+        print(f" EXPLAIN:  {explain[args.explain]}")
         return 0
 
     return 0
