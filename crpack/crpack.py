@@ -92,9 +92,13 @@ AUTHOR = 'GrenManSK'"""
         file.write(
             """import argparse
 import sys
-from """ + vstup + """.__init__ import VERSION
+from """
+            + vstup
+            + """.__init__ import VERSION
 
-print(f\"""" + vstup + """ using {VERSION}")
+print(f\""""
+            + vstup
+            + """ using {VERSION}")
 
 explain = {}
 
