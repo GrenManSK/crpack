@@ -92,7 +92,7 @@ AUTHOR = 'GrenManSK'"""
         file.write(
             """import argparse
 import sys
-from __init__ import VERSION
+from """ + vstup + """.__init__ import VERSION
 
 print(f\"""" + vstup + """ using {VERSION}")
 
