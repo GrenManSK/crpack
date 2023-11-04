@@ -3,7 +3,7 @@ import argparse
 import verbose
 from crpack.__init__ import VERSION
 
-print(f"crpack using {VERSION}")
+print(f"using crpack {VERSION}")
 
 
 logger = verbose.get_logger()
@@ -98,9 +98,9 @@ from """
             + vstup
             + """.__init__ import VERSION
 
-print(f\""""
+print(f\"using """
             + vstup
-            + """ using {VERSION}")
+            + """ {VERSION}")
 
 explain = {}
 
