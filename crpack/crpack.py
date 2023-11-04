@@ -31,6 +31,8 @@ def main():
     if args.new_folder is None:
         nf = input("Folder name for package to be put > ")
         nfpath = "" if nf in ["", "./"] else f"{nf}/"
+    elif args.new_folder == UNSPECIFIED:
+        nfpath = ".\\"
     else:
         nfpath = args.new_folder
 
