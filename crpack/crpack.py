@@ -85,8 +85,8 @@ setup(
         logger.stay("Writing __init__.py")
     with open(f"{nfpath}{vstup}/__init__.py", "w") as file:
         file.write(
-            """VERSION = '1.0.0'
-AUTHOR = 'GrenManSK'"""
+            """VERSION = \"1.0.0\"
+AUTHOR = \"GrenManSK\"\n"""
         )
     if args.verbose:
         logger.stay(f"Writing {vstup}.py")
