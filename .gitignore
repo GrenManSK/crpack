@@ -4,3 +4,4 @@ __pycache__/
 build/
 crpack.egg-info/
 .vscode/
+test/

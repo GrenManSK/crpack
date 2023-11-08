@@ -94,8 +94,9 @@ AUTHOR = \"GrenManSK\"\n"""
         file.write(
             """import argparse
 import sys
+import contextlib
 
-try:
+with contextlib.suppress(ModuleNotFoundError):
     from """
             + vstup
             + """.__init__ import VERSION
@@ -103,8 +104,6 @@ try:
     print(f\"using """
             + vstup
             + """ {VERSION}")
-except ModuleNotFoundError:
-    pass
 
 explain = {}
 
@@ -170,20 +169,36 @@ def ErrorWrapper(func):
 
 @ErrorWrapper
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
+    parser = argparse.ArgumentParser(
+        prog=\""""
+            + vstup
+            + """\",
+        description="",
+        epilog="",
+    ))
+    err_group = parser.add_argument_group("EXPLAIN")
+    err_group.add_argument(
         "--explain",
-        type=int,
+        type=lambda x: int(x) if x.isdigit() else str(x),
         help="explain error code",
-        choices=explain.keys(),
+        choices=list(explain.keys()) + ["all"],
         metavar="ERROR_CODE",
+        dest="explain",
         default=None,
     )
     args = parser.parse_args()
 
     if args.explain is not None:
-        print(f"EXPLAIN: Explaining error code: {args.explain}")
-        print(f" EXPLAIN:  {explain[args.explain]}")
+        if args.explain == "all":
+            if len(explain) > 0:
+                print("EXPLAIN: Explaining every error code:")
+                for item in explain.keys():
+                    print(f" EXPLAIN: {item}; {explain[item]}")
+            else:
+                print("EXPLAIN: Any error code supplied")
+        else:
+            print(f"EXPLAIN: Explaining error code: {args.explain}")
+            print(f" EXPLAIN:  {explain[args.explain]}")
         return 0
 
     return 0
