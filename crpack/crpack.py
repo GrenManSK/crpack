@@ -180,7 +180,9 @@ def main():
         prog=\""""
             + vstup
             + """\",
-        description="",
+        description=\""""
+            + desc
+            + """\",
         epilog="",
     )
     err_group = parser.add_argument_group("EXPLAIN")
