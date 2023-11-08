@@ -1,6 +1,5 @@
 import os
 import argparse
-import verbose
 import contextlib
 
 with contextlib.suppress(ModuleNotFoundError):
@@ -9,11 +8,9 @@ with contextlib.suppress(ModuleNotFoundError):
     print(f"using crpack {VERSION}")
 
 
-logger = verbose.get_logger()
 parser = argparse.ArgumentParser()
 UNSPECIFIED = object()
 parser.add_argument("-ver", "--version", nargs="?", choices=[None], default=UNSPECIFIED)
-parser.add_argument("-v", "--verbose", nargs="?", default=UNSPECIFIED)
 parser.add_argument("-n", "--name", nargs="?", default=None)
 parser.add_argument("-d", "--desc", nargs="?", default=None)
 parser.add_argument("-nf", "--new_folder", nargs="?", default=UNSPECIFIED)
@@ -21,7 +18,6 @@ args = parser.parse_args()
 if args.version is None:
     print(f"Version of crpack is {VERSION}")
     quit(0)
-args.verbose = args.verbose is None
 
 
 def main():
@@ -35,20 +31,10 @@ def main():
         nfpath = ".\\"
     else:
         nfpath = args.new_folder
-
-    if args.verbose:
-        logger.stay(f"Creating folder with name {vstup}")
     if args.new_folder != UNSPECIFIED:
-        if args.verbose:
-            logger.stay(f"Creating folder with name {nf}")
-            logger.stay(f"Creating folder with name {nf}/{vstup}")
         os.makedirs(f"{nf}/{vstup}")
     else:
-        if args.verbose:
-            logger.stay(f"Creating folder with name {vstup}")
         os.mkdir(vstup)
-    if args.verbose:
-        logger.stay("Writing setup.py")
     with open(f"{nfpath}setup.py", "w") as file:
         file.write(
             f"""from setuptools import setup
@@ -80,15 +66,11 @@ setup(
 )
 """
         )
-    if args.verbose:
-        logger.stay("Writing __init__.py")
     with open(f"{nfpath}{vstup}/__init__.py", "w") as file:
         file.write(
             """VERSION = \"1.0.0\"
 AUTHOR = \"GrenManSK\"\n"""
         )
-    if args.verbose:
-        logger.stay(f"Writing {vstup}.py")
     with open(f"{nfpath}{vstup}/{vstup}.py", "w") as file:
         file.write(
             """import argparse
