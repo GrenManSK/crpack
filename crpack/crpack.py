@@ -182,7 +182,7 @@ def main():
             + """\",
         description="",
         epilog="",
-    ))
+    )
     err_group = parser.add_argument_group("EXPLAIN")
     err_group.add_argument(
         "--explain",
