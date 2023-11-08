@@ -1,23 +1,23 @@
 import os
 import argparse
 import verbose
-from crpack.__init__ import VERSION
+import contextlib
 
-print(f"using crpack {VERSION}")
+with contextlib.suppress(ModuleNotFoundError):
+    from crpack.__init__ import VERSION
+
+    print(f"using crpack {VERSION}")
 
 
 logger = verbose.get_logger()
 parser = argparse.ArgumentParser()
 UNSPECIFIED = object()
-parser.add_argument("-ver", "--version", nargs="?", default=UNSPECIFIED)
+parser.add_argument("-ver", "--version", nargs="?", choices=[None], default=UNSPECIFIED)
 parser.add_argument("-v", "--verbose", nargs="?", default=UNSPECIFIED)
 parser.add_argument("-n", "--name", nargs="?", default=None)
 parser.add_argument("-d", "--desc", nargs="?", default=None)
 parser.add_argument("-nf", "--new_folder", nargs="?", default=UNSPECIFIED)
 args = parser.parse_args()
-if args.version not in [None, UNSPECIFIED]:
-    print("Argument error: --version does not take any input")
-    quit(1)
 if args.version is None:
     print(f"Version of crpack is {VERSION}")
     quit(0)
@@ -42,12 +42,11 @@ def main():
         if args.verbose:
             logger.stay(f"Creating folder with name {nf}")
             logger.stay(f"Creating folder with name {nf}/{vstup}")
-        os.mkdir(f"{nf}")
-        os.mkdir(f"{nf}/{vstup}")
+        os.makedirs(f"{nf}/{vstup}")
     else:
         if args.verbose:
             logger.stay(f"Creating folder with name {vstup}")
-        os.mkdir(f"{vstup}")
+        os.mkdir(vstup)
     if args.verbose:
         logger.stay("Writing setup.py")
     with open(f"{nfpath}setup.py", "w") as file:
@@ -109,6 +108,17 @@ explain = {}
 
 
 def check_for_error(errors, func):
+    \"\"\"Check for errors and print error messages.
+
+    Args:
+        errors: A dictionary or iterable of error codes.
+        func: The function where the errors occurred.
+
+    Returns:
+        None
+
+    \"\"\"
+    
     if len(errors) == 0:
         return
     if isinstance(errors, dict):
@@ -128,25 +138,40 @@ def check_for_error(errors, func):
 
 
 def ErrorWrapper(func):
+    \"\"\"Decorator that wraps a function and handles errors.
+
+    Args:
+        func: The function to be wrapped.
+
+    Returns:
+        The wrapped function.
+
+    \"\"\"
+    
     def wrapper(*args, **kwargs):
         try:
             return_code = func(*args, **kwargs)
+            type_warnings = {
+                str: "should not return a string but 0",
+                bool: "should not return a bool but 0",
+                float: "should not return a float but 0",
+                bytes: "should not return a bytes but 0",
+                bytearray: "should not return a bytearray but 0",
+                list: check_for_error,
+                tuple: check_for_error,
+                set: check_for_error,
+                dict: check_for_error,
+            }
             if return_code == 0:
                 sys.exit(0)
             elif return_code is None:
                 print(f"WARNING: {func.__name__} should return 0")
-            elif isinstance(return_code, str):
-                print(f"WARNING: {func.__name__} should not return a string but 0")
-            elif isinstance(return_code, bool):
-                print(f"WARNING: {func.__name__} should not return a bool but 0")
-            elif isinstance(return_code, float):
-                print(f"WARNING: {func.__name__} should not return a float but 0")
-            elif isinstance(return_code, (list, tuple, set, dict)):
-                check_for_error(return_code, func)
-            elif isinstance(return_code, bytes):
-                print(f"WARNING: {func.__name__} should not return a bytes but 0")
-            elif isinstance(return_code, bytearray):
-                print(f"WARNING: {func.__name__} should not return a bytearray but 0")
+            elif isinstance(return_code, tuple(type_warnings.keys())):
+                warning = type_warnings[type(return_code)]
+                if callable(warning):
+                    warning(return_code, func)
+                else:
+                    print(f"WARNING: {func.__name__} {warning}")
             elif return_code == 1 and isinstance(return_code, int):
                 print(f"ERROR: {func.__name__} failed with return code {return_code}")
             elif return_code != 0 and isinstance(return_code, int):
@@ -156,9 +181,9 @@ def ErrorWrapper(func):
                 sys.exit(return_code)
             else:
                 print(
-                    "WARNING: "
-                    + func.__name__
-                    + f" should return 0, not {type(return_code)}"
+                    "WARNING: {} should return 0, not {}".format(
+                        func.__name__, type(return_code)
+                    )
                 )
         except Exception as e:
             print(e)
