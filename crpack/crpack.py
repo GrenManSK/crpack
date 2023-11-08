@@ -94,13 +94,17 @@ AUTHOR = \"GrenManSK\"\n"""
         file.write(
             """import argparse
 import sys
-from """
+
+try:
+    from """
             + vstup
             + """.__init__ import VERSION
 
-print(f\"using """
+    print(f\"using """
             + vstup
             + """ {VERSION}")
+except ModuleNotFoundError:
+    pass
 
 explain = {}
 
