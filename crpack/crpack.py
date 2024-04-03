@@ -37,8 +37,7 @@ def main():
         os.mkdir(vstup)
     with open(f"{nfpath}setup.py", "w") as file:
         file.write(
-            f"""from setuptools import setup
-from setuptools import find_packages
+            f"""from setuptools import setup, find_packages
 import glob
 from {vstup} import VERSION, AUTHOR
 
